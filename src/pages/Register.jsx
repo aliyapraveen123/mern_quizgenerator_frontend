@@ -37,13 +37,29 @@ export default function Register() {
       }
       const res = await registerApi(form);
       if (res.success) {
-        login({ _id: res.data._id, name: res.data.name, email: res.data.email }, res.data.token);
-        navigate('/dashboard');
+        // Registration created — require email verification before login.
+        // Navigate to OTP verification page and pass email for convenience.
+        navigate('/verify-otp', {
+          state: {
+            email: res.data?.email || form.email,
+            info: res.emailSent === false ? res.message : null
+          }
+        });
       } else {
         setError(res.message || 'Registration failed');
       }
     } catch (err) {
-      setError(err.response?.data?.message || 'Registration failed');
+      // The API client normalizes Axios failures to { message, code }.
+      if (err?.code === 'EMAIL_UNVERIFIED') {
+        navigate('/verify-otp', {
+          state: {
+            email: form.email,
+            info: 'Your account is waiting for email verification. Click “Resend code” to receive a new OTP.'
+          }
+        });
+        return;
+      }
+      setError(err?.message || err?.response?.data?.message || 'Registration failed');
     } finally {
       setLoading(false);
     }

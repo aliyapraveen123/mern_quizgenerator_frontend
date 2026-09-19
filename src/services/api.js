@@ -2,22 +2,10 @@ import axios from 'axios';
 
 // Create configured Axios instance
 const API = axios.create({
-  baseURL: 'http://localhost:5000/api'
+  baseURL: 'http://localhost:5000/api',
+  withCredentials: true
 });
-
-// Request interceptor to automatically attach JWT token from localStorage
-API.interceptors.request.use(
-  (config) => {
-    const token = localStorage.getItem('token');
-    if (token) {
-      config.headers.Authorization = `Bearer ${token}`;
-    }
-    return config;
-  },
-  (error) => {
-    return Promise.reject(error);
-  }
-);
+// Remove token-from-localStorage interceptor: server now uses HttpOnly cookie
 
 // Response interceptor: handle unauthorized globally and provide friendly errors
 API.interceptors.response.use(

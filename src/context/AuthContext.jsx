@@ -13,15 +13,8 @@ export const AuthProvider = ({ children }) => {
     }
   });
 
-  const [token, setToken] = useState(() => localStorage.getItem('token') || null);
-
-  useEffect(() => {
-    if (token) {
-      localStorage.setItem('token', token);
-    } else {
-      localStorage.removeItem('token');
-    }
-  }, [token]);
+  // Token is stored in HttpOnly cookie; do not persist it in localStorage
+  const [token, setToken] = useState(null);
 
   useEffect(() => {
     if (user) {
@@ -31,15 +24,18 @@ export const AuthProvider = ({ children }) => {
     }
   }, [user]);
 
-  const login = (userData, jwt) => {
+  const login = (userData) => {
     setUser(userData);
-    setToken(jwt);
   };
 
-  const logout = () => {
+  const logout = async () => {
+    try {
+      await API.post('/auth/logout');
+    } catch (e) {
+      // ignore
+    }
     setUser(null);
     setToken(null);
-    API.defaults.headers.Authorization = '';
   };
 
   return (
