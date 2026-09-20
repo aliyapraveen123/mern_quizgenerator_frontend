@@ -1,11 +1,16 @@
 import React, { useState, useContext } from 'react';
-import { useNavigate, Link } from 'react-router-dom';
+import { useNavigate, Link, useLocation } from 'react-router-dom';
 import { register as registerApi } from '../services/authService';
 import { AuthContext } from '../context/AuthContext';
 import { isValidEmail, isValidPassword } from '../utils/validation';
 
 export default function Register() {
-  const [form, setForm] = useState({ name: '', email: '', password: '' });
+  const location = useLocation();
+  const [form, setForm] = useState({
+    name: '',
+    email: location.state?.email || '',
+    password: ''
+  });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
 

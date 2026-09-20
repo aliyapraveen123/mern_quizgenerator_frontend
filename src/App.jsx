@@ -10,8 +10,6 @@ import VerifyOTP from './pages/VerifyOTP';
 import GenerateQuiz from './pages/GenerateQuiz';
 import Quiz from './pages/Quiz';
 import History from './pages/History';
-import ForgotPassword from './pages/ForgotPassword';
-import ResetPassword from './pages/ResetPassword';
 
 function Home() {
   return (
@@ -45,8 +43,6 @@ function App() {
           <Route path="/register" element={<Register />} />
           <Route path="/login" element={<Login />} />
           <Route path="/verify-otp" element={<VerifyOTP />} />
-          <Route path="/forgot-password" element={<ForgotPassword />} />
-          <Route path="/reset-password" element={<ResetPassword />} />
           <Route path="/dashboard" element={<ProtectedRoute><DashboardPlaceholder /></ProtectedRoute>} />
           <Route path="/generate" element={<ProtectedRoute><GenerateQuiz /></ProtectedRoute>} />
           <Route path="/quiz/:id" element={<ProtectedRoute><Quiz /></ProtectedRoute>} />

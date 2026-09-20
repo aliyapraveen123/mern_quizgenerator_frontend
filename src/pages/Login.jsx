@@ -89,12 +89,7 @@ export default function Login() {
 
       const r = await resendVerification({ email });
 
-      setResendMsg(
-        r.verificationUrl
-          ? 'Verification email (dev) resent.'
-          : r.message ||
-            'If an account exists, a verification email has been sent.'
-      );
+      setResendMsg(r.message || 'If an account exists, a verification email has been sent.');
     } catch (err) {
       setResendMsg('Failed to resend verification');
     } finally {
@@ -144,9 +139,6 @@ export default function Login() {
               </div>
             )}
 
-            {devVerificationUrl && (
-              {/* Dev verification link removed for OTP flow */}
-            )}
           </div>
         )}
 
