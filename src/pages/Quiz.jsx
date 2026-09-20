@@ -1,9 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
-import { getQuizById, submitQuizResult } from '../services/quizService';
+import { askQuizChatbot, getQuizById, submitQuizResult } from '../services/quizService';
 import Loading from '../components/Loading';
 import QuizQuestion from '../components/QuizQuestion';
-
 
 export default function Quiz() {
   const { id } = useParams();
@@ -13,6 +12,10 @@ export default function Quiz() {
   const [selected, setSelected] = useState({});
   const [submitting, setSubmitting] = useState(false);
   const [result, setResult] = useState(null);
+  const [chatInput, setChatInput] = useState('');
+  const [chatMessages, setChatMessages] = useState([]);
+  const [chatLoading, setChatLoading] = useState(false);
+  const [chatError, setChatError] = useState('');
 
   useEffect(() => {
     const load = async () => {
@@ -52,7 +55,6 @@ export default function Quiz() {
       const res = await submitQuizResult({ quizId: quiz._id, answers });
       if (res.success) {
         setResult(res.data);
-        // Update local quiz object to reflect attempt
         setQuiz((prev) => ({ ...prev, isAttempted: true }));
       } else {
         setError(res.message || 'Failed to submit quiz');
@@ -61,6 +63,30 @@ export default function Quiz() {
       setError(err.response?.data?.message || 'Failed to submit quiz');
     } finally {
       setSubmitting(false);
+    }
+  };
+
+  const handleChatSubmit = async (e) => {
+    e.preventDefault();
+    if (!chatInput.trim() || chatLoading) return;
+
+    const userMessage = chatInput.trim();
+    setChatInput('');
+    setChatError('');
+    setChatMessages((prev) => [...prev, { role: 'user', text: userMessage }]);
+    setChatLoading(true);
+
+    try {
+      const res = await askQuizChatbot({ quizId: quiz._id, message: userMessage });
+      if (res.success) {
+        setChatMessages((prev) => [...prev, { role: 'assistant', text: res.data.answer }]);
+      } else {
+        setChatError(res.message || 'The chatbot could not answer that question.');
+      }
+    } catch (err) {
+      setChatError(err?.message || 'The chatbot could not answer that question.');
+    } finally {
+      setChatLoading(false);
     }
   };
 
@@ -87,6 +113,12 @@ export default function Quiz() {
 
         {error && <div className="alert alert-error">{error}</div>}
 
+        {submitting && (
+          <div className="alert alert-info" style={{ marginTop: 16 }}>
+            Analyzing your quiz performance...
+          </div>
+        )}
+
         {!quiz.isAttempted && !result && (
           <div style={{ display: 'flex', gap: 12, marginTop: 10 }}>
             <button className="btn btn-primary" onClick={handleSubmit} disabled={submitting}>
@@ -109,8 +141,59 @@ export default function Quiz() {
                 <strong>Status:</strong> <span className={ (result ? result.passed : quiz.passed) ? 'badge badge-pass' : 'badge badge-fail' }>{(result ? result.passed : quiz.passed) ? 'PASS' : 'FAIL'}</span>
               </div>
             </div>
+
+            <div className="summary-box" style={{ marginTop: 20 }}>
+              <div className="summary-title">AI Learning Feedback</div>
+              <div className="summary-text">
+                {result?.feedback ? result.feedback : 'AI feedback is temporarily unavailable.'}
+              </div>
+            </div>
           </div>
         )}
+
+        <div className="quiz-chatbot-panel">
+          <div className="quiz-chatbot-header">
+            <h3>Ask AI</h3>
+          </div>
+
+          <div className="quiz-chat-messages">
+            {chatMessages.length === 0 && (
+              <div className="chat-empty-state">
+                Ask about the quiz summary, a question, or a concept.
+              </div>
+            )}
+
+            {chatMessages.map((message, index) => (
+              <div key={`${message.role}-${index}`} className={`chat-message ${message.role}`}>
+                <div className="chat-bubble">{message.text}</div>
+              </div>
+            ))}
+
+            {chatLoading && (
+              <div className="chat-message assistant">
+                <div className="chat-bubble loading-bubble">
+                  <Loading dark />
+                </div>
+              </div>
+            )}
+          </div>
+
+          {chatError && <div className="alert alert-error chat-alert">{chatError}</div>}
+
+          <form onSubmit={handleChatSubmit} className="chat-form">
+            <input
+              type="text"
+              className="form-input chat-input"
+              value={chatInput}
+              onChange={(e) => setChatInput(e.target.value)}
+              placeholder="Explain question 3"
+              disabled={chatLoading}
+            />
+            <button type="submit" className="btn btn-primary" disabled={chatLoading || !chatInput.trim()}>
+              {chatLoading ? 'Thinking...' : 'Send'}
+            </button>
+          </form>
+        </div>
       </div>
     </div>
   );

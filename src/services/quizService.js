@@ -19,3 +19,8 @@ export const getQuizHistory = async () => {
   const res = await API.get('/quiz/history');
   return res.data;
 };
+
+export const askQuizChatbot = async (payload) => {
+  const res = await API.post('/ai/chat', payload);
+  return res.data;
+};
