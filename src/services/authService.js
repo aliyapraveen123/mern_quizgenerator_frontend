@@ -19,3 +19,13 @@ export const verifyOtp = async (payload) => {
   const res = await API.post('/auth/verify-otp', payload);
   return res.data;
 };
+
+export const updateProfile = async (payload) => {
+  const res = await API.put('/auth/profile', payload);
+  return res.data;
+};
+
+export const changePassword = async (payload) => {
+  const res = await API.put('/auth/change-password', payload);
+  return res.data;
+};

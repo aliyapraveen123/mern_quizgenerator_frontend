@@ -28,6 +28,13 @@ export const AuthProvider = ({ children }) => {
     setUser(userData);
   };
 
+  const updateUser = (updatedUser) => {
+    setUser((currentUser) => ({
+      ...currentUser,
+      ...updatedUser
+    }));
+  };
+
   const logout = async () => {
     try {
       await API.post('/auth/logout');
@@ -39,7 +46,7 @@ export const AuthProvider = ({ children }) => {
   };
 
   return (
-    <AuthContext.Provider value={{ user, token, login, logout }}>
+    <AuthContext.Provider value={{ user, token, login, updateUser, logout }}>
       {children}
     </AuthContext.Provider>
   );

@@ -76,34 +76,35 @@ export default function GenerateQuiz() {
   };
 
   return (
-    <div className="container">
-      <div className="card" style={{ maxWidth: 800, margin: '28px auto' }}>
+    <div className="container generate-page-shell">
+      <div className="generate-card">
         <h2>Generate a Quiz</h2>
-        <p style={{ color: '#64748b', marginBottom: 16 }}>Paste a YouTube educational video URL or paste your own content below.</p>
+        <p className="generate-subtitle">Paste a YouTube educational video URL or paste your own content below.</p>
 
         <ErrorMessage>{error}</ErrorMessage>
 
-        <form onSubmit={handleSubmit}>
+        <form onSubmit={handleSubmit} className="generate-form">
           <div className="form-group">
             <label className="form-label">Number of Questions</label>
-            <div style={{ display: 'flex', gap: 12 }}>
+            <div className="question-options">
               {[5, 10, 15, 20].map((n) => (
-                <label key={n} style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                <label key={n} className={`question-option ${numQuestions === n ? 'selected' : ''}`}>
                   <input type="radio" name="numQuestions" value={n} checked={numQuestions === n} onChange={() => setNumQuestions(n)} disabled={loading} />
                   <span>{n}</span>
                 </label>
               ))}
             </div>
           </div>
+
           <URLInput value={videoUrl} onChange={setVideoUrl} disabled={loading} />
 
-          <div style={{ textAlign: 'center', margin: '10px 0', color: '#94a3b8' }}>OR</div>
+          <div className="divider-with-text"><span>OR</span></div>
 
           <div className="form-group">
             <label className="form-label">Paste manual content (optional fallback)</label>
             <textarea
-              className="form-input"
-              rows={6}
+              className="form-input manual-content-input"
+              rows={7}
               value={content}
               onChange={(e) => setContent(e.target.value)}
               placeholder="Paste educational transcript or study notes here..."
@@ -111,7 +112,7 @@ export default function GenerateQuiz() {
             />
           </div>
 
-          <button className="btn btn-primary" type="submit" disabled={loading}>
+          <button className="btn btn-primary generate-submit" type="submit" disabled={loading}>
             {loading ? <Loading dark={true} /> : 'Generate Quiz'}
           </button>
         </form>
