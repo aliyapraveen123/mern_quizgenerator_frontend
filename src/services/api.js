@@ -2,7 +2,7 @@ import axios from 'axios';
 
 // Create configured Axios instance
 const API = axios.create({
-  baseURL: 'http://localhost:5000/api',
+  baseURL: `${import.meta.env.VITE_API_URL || 'http://localhost:5000'}/api`,
   withCredentials: true
 });
 // Remove token-from-localStorage interceptor: server now uses HttpOnly cookie
