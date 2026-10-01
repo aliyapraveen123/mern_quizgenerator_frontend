@@ -1,8 +1,14 @@
 import axios from 'axios';
 
+const apiUrl = import.meta.env.VITE_API_URL || (import.meta.env.DEV ? 'http://localhost:5000' : '');
+
+if (!apiUrl) {
+  throw new Error('VITE_API_URL must be set to the deployed backend URL in production.');
+}
+
 // Create configured Axios instance
 const API = axios.create({
-  baseURL: `${import.meta.env.VITE_API_URL || 'http://localhost:5000'}/api`,
+  baseURL: `${apiUrl.replace(/\/+$/, '')}/api`,
   withCredentials: true
 });
 // Remove token-from-localStorage interceptor: server now uses HttpOnly cookie
