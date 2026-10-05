@@ -4,19 +4,33 @@ import API from '../services/api';
 export const AuthContext = createContext();
 
 export const AuthProvider = ({ children }) => {
-  const [user, setUser] = useState(() => {
-    try {
-      const raw = localStorage.getItem('user');
-      return raw ? JSON.parse(raw) : null;
-    } catch {
-      return null;
-    }
-  });
+  const [user, setUser] = useState(null);
 
   // Token is stored in HttpOnly cookie; do not persist it in localStorage
   const [token, setToken] = useState(null);
+  const [authLoading, setAuthLoading] = useState(true);
 
   useEffect(() => {
+    let active = true;
+
+    API.get('/auth/me', { skipAuthRedirect: true })
+      .then((response) => {
+        if (active) setUser(response.data.data);
+      })
+      .catch(() => {
+        if (active) setUser(null);
+      })
+      .finally(() => {
+        if (active) setAuthLoading(false);
+      });
+
+    return () => {
+      active = false;
+    };
+  }, []);
+
+  useEffect(() => {
+    if (authLoading) return;
     if (user) {
       localStorage.setItem('user', JSON.stringify(user));
     } else {
@@ -46,7 +60,7 @@ export const AuthProvider = ({ children }) => {
   };
 
   return (
-    <AuthContext.Provider value={{ user, token, login, updateUser, logout }}>
+    <AuthContext.Provider value={{ user, token, authLoading, login, updateUser, logout }}>
       {children}
     </AuthContext.Provider>
   );

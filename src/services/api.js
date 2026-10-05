@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-const apiUrl = import.meta.env.VITE_API_URL || (import.meta.env.DEV ? 'http://localhost:5000' : 'https://mern-quizgenerator-backend-5.onrender.com');
+const apiUrl = import.meta.env.VITE_API_URL || (import.meta.env.DEV ? 'http://localhost:5000' : '');
 
 if (!apiUrl) {
   throw new Error('VITE_API_URL must be set to the deployed backend URL in production.');
@@ -29,7 +29,7 @@ API.interceptors.response.use(
         // ignore
       }
       // Graceful redirect to login
-      if (typeof window !== 'undefined') {
+      if (typeof window !== 'undefined' && !error.config?.skipAuthRedirect) {
         window.location.href = '/login';
       }
       return Promise.reject({ message: data?.message || 'Not authorized' });
